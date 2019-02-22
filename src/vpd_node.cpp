@@ -16,7 +16,7 @@ public:
 // LSD line segment detection
 VPD_ROS();
 ~VPD_ROS(){}
-void process();
+cv::Mat image;
 
 private:
 void LineDetect( cv::Mat image, double thLength, std::vector<std::vector<double> > &lines );
@@ -27,17 +27,15 @@ cv::Point2d pp;
 double f, thLength;
 ros::NodeHandle nh;
 ros::Subscriber image_sub;
-bool image_updated;
-cv::Mat image;
-cv_bridge::CvImagePtr cv_ptr;
+
+VPDetection detector;
 
 };
 
 VPD_ROS::VPD_ROS()
 {
-	image_updated = false;
-	double inter_param_u0 = nh.param("projection_parameters/u0", 367.2);
-	double inter_param_v0 = nh.param("projection_parameters/v0", 238.5);
+	double inter_param_u0 = nh.param("projection_parameters/u0", 367);
+	double inter_param_v0 = nh.param("projection_parameters/v0", 238);
 	double inter_param_f = nh.param("projection_parameters/gamma1", 1115);
 
 	pp = cv::Point2d( inter_param_u0, inter_param_v0 );
@@ -137,53 +135,43 @@ void VPD_ROS::drawClusters( cv::Mat &img, std::vector<std::vector<double> > &lin
 void VPD_ROS::image_cb(const sensor_msgs::Image::ConstPtr &msg)
 {
 	ROS_INFO("getting new image...");
-	
+	cv_bridge::CvImagePtr cv_ptr;
 	try
 	{
-		ROS_INFO("a...");
 	  cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
-		ROS_INFO("b...");
 	}
 	catch (cv_bridge::Exception& e)
 	{
 	  ROS_ERROR("cv_bridge exception: %s", e.what());
 	  return;
 	}
+	cv_ptr->image.copyTo(image);
 
-	image = cv_ptr->image;	
-	image_updated = true;
+	std::vector<std::vector<double> > lines;
+	LineDetect( image, thLength, lines );
 
-	ROS_INFO("get new image...");
+	std::vector<cv::Point3d> vps;
+	std::vector<std::vector<int> > clusters;
+	
+	// detector.run( lines, pp, f, vps, clusters );
+
+	drawClusters( image, lines, clusters );	
+
 }
 
-void VPD_ROS::process()
-{
-	if (image_updated) {
-		std::vector<std::vector<double> > lines;
-		LineDetect( image, thLength, lines );
-
-		std::vector<cv::Point3d> vps;
-		std::vector<std::vector<int> > clusters;
-		VPDetection detector;
-		detector.run( lines, pp, f, vps, clusters );
-
-		drawClusters( image, lines, clusters );
-		// imshow("",image);
-		// cv::waitKey( 50 );
-
-		image_updated = false;
-	}
-}
 
 int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "vpd_node");
 	VPD_ROS vpd_ros;
 	ros::Rate rate(10);
-
-	while (ros::ok()){
+	while(ros::ok()){
 		ros::spinOnce();
-		vpd_ros.process();
+		if (!vpd_ros.image.empty()){
+			ROS_INFO("Showing new image...");
+			imshow("Test", vpd_ros.image);
+			cv::waitKey( 20 );
+		}
 
 		rate.sleep();
 	}

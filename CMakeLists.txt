@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(VanishingPointDetection)
+project(vanishing_point_detection)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-
+set(OpenCV_DIR "/usr/local/opencv3.2/share/OpenCV")
 find_package(OpenCV 3 REQUIRED)
 
 message(STATUS "OpenCV Dir: " ${OpenCV_DIR})
@@ -142,8 +142,9 @@ add_executable(vpd_node src/vpd_node.cpp src/VPDetection.cpp src/lsd.c)
 # add_dependencies(VanishingPointDetection_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(vpd_node
-  ${catkin_LIBRARIES} ${OpenCV_LIBS}
+
+target_link_libraries(vpd_node ${OpenCV_LIBS} # Opencv first place. or will call wrong .so (cv_bridge of ros is using opencv2.0)
+  ${catkin_LIBRARIES} 
 )
 
 message(STATUS "Opencv Lib is: " ${OpenCV_LIBS})

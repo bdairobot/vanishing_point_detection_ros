@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>VanishingPointDetection</name>
+  <name>vanishing_point_detection</name>
   <version>0.0.0</version>
-  <description>The VanishingPointDetection package</description>
+  <description>The vanishing_point_detection package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
@@ -19,7 +19,7 @@
   <!-- Url tags are optional, but mutiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/VanishingPointDetection</url> -->
+  <!-- <url type="website">http://wiki.ros.org/vanishing_point_detection</url> -->
 
 
   <!-- Author tags are optional, mutiple are allowed, one per tag -->
@@ -49,6 +49,7 @@
   <run_depend>sensor_msgs</run_depend>
   <run_depend>std_msgs</run_depend>
   <run_depend>cv_bridge</run_depend>
+  <run_depend>opencv</run_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
